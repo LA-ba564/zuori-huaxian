@@ -147,11 +147,12 @@ body {
   inset: 0;
   background: rgba(5, 8, 16, 0.72);
   backdrop-filter: blur(6px);
-  display: flex;
+  display: none;
   align-items: flex-end;
   justify-content: center;
   z-index: 50;
 }
+.overlay.open { display: flex; }
 .sheet {
   width: 100%;
   max-width: 520px;

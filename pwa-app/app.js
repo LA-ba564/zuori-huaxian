@@ -135,7 +135,7 @@
     if (!current) return;
     $("note-quote").textContent = current.text;
     $("note-input").value = "";
-    $("note-overlay").hidden = false;
+    $("note-overlay").classList.add("open");
     setTimeout(function () { $("note-input").focus(); }, 120);
   }
   function saveNote() {
@@ -152,7 +152,7 @@
       ts: ts,
     });
     save(K_THOUGHTS, list);
-    $("note-overlay").hidden = true;
+    $("note-overlay").classList.remove("open");
     refreshThoughtsCount();
   }
 
@@ -218,19 +218,19 @@
   });
 
   noteBtn.addEventListener("click", openNote);
-  $("note-close").addEventListener("click", function () { $("note-overlay").hidden = true; });
+  $("note-close").addEventListener("click", function () { $("note-overlay").classList.remove("open"); });
   $("note-save").addEventListener("click", saveNote);
   $("note-overlay").addEventListener("click", function (e) {
-    if (e.target === $("note-overlay")) $("note-overlay").hidden = true;
+    if (e.target === $("note-overlay")) $("note-overlay").classList.remove("open");
   });
 
   thoughtsBtn.addEventListener("click", function () {
     renderThoughts();
-    $("thoughts-overlay").hidden = false;
+    $("thoughts-overlay").classList.add("open");
   });
-  $("thoughts-close").addEventListener("click", function () { $("thoughts-overlay").hidden = true; });
+  $("thoughts-close").addEventListener("click", function () { $("thoughts-overlay").classList.remove("open"); });
   $("thoughts-overlay").addEventListener("click", function (e) {
-    if (e.target === $("thoughts-overlay")) $("thoughts-overlay").hidden = true;
+    if (e.target === $("thoughts-overlay")) $("thoughts-overlay").classList.remove("open");
   });
 
   // 键盘（桌面预览用）
