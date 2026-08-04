@@ -238,14 +238,100 @@
     if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") nextCard();
   });
 
+  // ---------- 口令（首次设置 / 之后验证） ----------
+  var K_PIN = "yl_pin";
+  function hashPin(s) {
+    var h = 5381;
+    for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return String(h >>> 0);
+  }
+  function readPin() {
+    try { return localStorage.getItem(K_PIN) || ""; } catch (e) { return ""; }
+  }
+  function writePin(v) {
+    try { localStorage.setItem(K_PIN, v); } catch (e) {}
+  }
+
+  function setupGate(onOk) {
+    var stored = readPin();
+    var overlay = document.createElement("div");
+    var box = document.createElement("div");
+    var title = document.createElement("p");
+    var desc = document.createElement("p");
+    var input = document.createElement("input");
+    var input2 = document.createElement("input");
+    var err = document.createElement("p");
+    var btn = document.createElement("button");
+    var tip = document.createElement("p");
+    var inputStyle = "width:100%;box-sizing:border-box;background:#0C1526;border:1px solid #2A3245;border-radius:12px;color:#E9C9A0;font-family:inherit;font-size:16px;letter-spacing:.2em;text-align:center;padding:12px 14px;margin-bottom:10px;";
+
+    [title, desc, input, input2, err, btn, tip].forEach(function (el) { box.appendChild(el); });
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    overlay.setAttribute("style", "position:fixed;inset:0;background:#0E1626;display:flex;align-items:center;justify-content:center;z-index:100;");
+    box.setAttribute("style", "width:86%;max-width:360px;text-align:center;");
+    title.setAttribute("style", "color:#E9C9A0;font-size:20px;letter-spacing:.15em;margin-bottom:8px;");
+    title.textContent = "昨日划线";
+    desc.setAttribute("style", "color:#8A93A8;font-size:13px;margin-bottom:20px;");
+    input.setAttribute("type", "password");
+    input.setAttribute("placeholder", "输入口令");
+    input.setAttribute("style", inputStyle);
+    input2.setAttribute("type", "password");
+    input2.setAttribute("placeholder", "再输一遍");
+    input2.setAttribute("style", inputStyle);
+    err.setAttribute("style", "color:#D9A85B;font-size:13px;margin-bottom:10px;min-height:1em;");
+    btn.setAttribute("type", "button");
+    btn.setAttribute("style", "width:100%;padding:14px 0;border-radius:12px;background:#D9A85B;color:#0E1626;font-family:inherit;font-size:15px;letter-spacing:.1em;border:none;cursor:pointer;font-weight:600;");
+    tip.setAttribute("style", "color:#3A4155;font-size:11px;margin-top:16px;letter-spacing:.05em;");
+    tip.textContent = "口令存在本机浏览器 · 清除浏览器缓存会重置";
+
+    if (stored) {
+      desc.textContent = "输入口令进入";
+      input2.style.display = "none";
+      btn.textContent = "进入";
+    } else {
+      desc.textContent = "设置一个口令，保护你的划线";
+      btn.textContent = "设置口令";
+    }
+
+    function fail(msg) {
+      err.textContent = msg;
+      input.value = "";
+      if (input2.style.display !== "none") input2.value = "";
+      input.focus();
+    }
+    function submit() {
+      var v = input.value.trim();
+      if (!v) { fail("口令不能为空"); return; }
+      if (stored) {
+        if (hashPin(v) === stored) { overlay.remove(); onOk(); }
+        else { fail("口令不对"); }
+      } else {
+        if (v !== input2.value.trim()) { fail("两次输入不一致"); return; }
+        writePin(hashPin(v));
+        overlay.remove();
+        onOk();
+      }
+    }
+    btn.addEventListener("click", submit);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+    input2.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+    input.focus();
+  }
+
   // ---------- 启动 ----------
-  lastYearLine = findLastYear();
-  if (!lastYearLine) egg.hidden = true;
-  render(pick() || FLAT[0]);
-  refreshThoughtsCount();
+  function initApp() {
+    lastYearLine = findLastYear();
+    if (!lastYearLine) egg.hidden = true;
+    render(pick() || FLAT[0]);
+    refreshThoughtsCount();
+  }
 
   // PWA 离线缓存
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(function () {});
   }
+
+  setupGate(initApp);
 })();

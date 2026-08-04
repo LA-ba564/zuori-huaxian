@@ -1,5 +1,5 @@
 /* 昨日划线 · Service Worker：静态资源离线缓存 */
-var CACHE = "zuori-huaxian-v1";
+var CACHE = "zuori-huaxian-v2";
 var ASSETS = ["./", "./index.html", "./style.css", "./app.js", "./data.js", "./icon.svg", "./manifest.webmanifest"];
 
 self.addEventListener("install", function (e) {
