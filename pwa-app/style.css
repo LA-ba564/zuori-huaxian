@@ -103,9 +103,11 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .egg {
@@ -124,6 +126,7 @@ body {
   width: 100%;
   max-width: 520px;
   cursor: pointer;
+  margin: auto 0;   /* 垂直居中；句子超长时回到顶部、可滚动 */
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 .card.leaving { opacity: 0; transform: translateY(10px); }
