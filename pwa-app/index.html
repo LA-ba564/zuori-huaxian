@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0E1626">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>昨日划线</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <span id="date">—</span>
+    <button id="thoughts-btn" class="linklike" type="button">想法<span id="thoughts-count"></span></button>
+  </header>
+
+  <main id="stage" class="stage">
+    <div id="egg" class="egg" hidden>
+      <span>✨ 去年的今天，你划下了这句</span>
+    </div>
+    <figure class="card" id="card">
+      <blockquote id="quote"></blockquote>
+      <figcaption id="source"></figcaption>
+    </figure>
+    <p class="hint">点一下换一句 · 长按标记不重要</p>
+  </main>
+
+  <footer class="actions">
+    <a id="open-link" class="btn primary" href="#" target="_blank" rel="noopener">回微信读书</a>
+    <button id="note-btn" class="btn ghost" type="button">写想法</button>
+  </footer>
+</div>
+
+<div id="note-overlay" class="overlay" hidden>
+  <div class="sheet">
+    <div class="sheet-head">
+      <span>写一句此刻的想法</span>
+      <button id="note-close" class="x" type="button">✕</button>
+    </div>
+    <p id="note-quote" class="mini-quote"></p>
+    <textarea id="note-input" rows="4" placeholder="看到这句，你想说什么？"></textarea>
+    <button id="note-save" class="btn primary" type="button">保存</button>
+  </div>
+</div>
+
+<div id="thoughts-overlay" class="overlay" hidden>
+  <div class="sheet tall">
+    <div class="sheet-head">
+      <span>我的想法</span>
+      <button id="thoughts-close" class="x" type="button">✕</button>
+    </div>
+    <div id="thoughts-list" class="list"></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

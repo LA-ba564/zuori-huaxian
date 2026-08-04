@@ -1,0 +1,14 @@
+{
+  "name": "昨日划线",
+  "short_name": "昨日划线",
+  "description": "每天一条你划过的句子，和去年的今天。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E1626",
+  "theme_color": "#0E1626",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

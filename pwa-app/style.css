@@ -1,0 +1,236 @@
+/* 昨日划线 · 深夜电台风格 */
+:root {
+  --bg: #0E1626;
+  --text: #E9C9A0;
+  --meta: #8A93A8;
+  --accent: #D9A85B;
+  --line: #2A3245;
+  --dim: rgba(233, 201, 160, 0.35);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  background: radial-gradient(120% 100% at 50% 0%, #162238 0%, var(--bg) 55%);
+  color: var(--text);
+  font-family: "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+#app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: max(16px, env(safe-area-inset-top)) 22px max(20px, env(safe-area-inset-bottom));
+}
+
+/* 顶部 */
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--meta);
+}
+.linklike {
+  background: none;
+  border: none;
+  color: var(--meta);
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 0 4px 12px;
+  cursor: pointer;
+}
+.linklike:active { color: var(--accent); }
+#thoughts-count {
+  display: inline-block;
+  min-width: 1.2em;
+  margin-left: 4px;
+  color: var(--accent);
+}
+
+/* 主区 */
+.stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+}
+
+.egg {
+  color: var(--accent);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  background: rgba(217, 168, 91, 0.06);
+}
+
+.card {
+  width: 100%;
+  max-width: 520px;
+  cursor: pointer;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.card.leaving { opacity: 0; transform: translateY(10px); }
+.card.ignored { opacity: 0.25; transform: scale(0.97); }
+
+#quote {
+  font-size: 21px;
+  line-height: 1.9;
+  font-weight: normal;
+  color: var(--text);
+  text-align: left;
+  word-break: break-word;
+}
+#source {
+  margin-top: 22px;
+  font-size: 15px;
+  color: var(--meta);
+  text-align: left;
+  line-height: 1.7;
+}
+#source .book { color: var(--accent); }
+#source .author { color: var(--meta); }
+
+.hint {
+  margin-top: 26px;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--dim);
+}
+
+/* 底部按钮 */
+.actions {
+  display: flex;
+  gap: 12px;
+}
+.btn {
+  flex: 1;
+  padding: 14px 0;
+  font-family: "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  border-radius: 12px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn.primary {
+  background: var(--accent);
+  color: #0E1626;
+  border: none;
+  font-weight: 600;
+}
+.btn.ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+.btn:active { opacity: 0.8; }
+
+/* 写想法 / 想法列表 overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 16, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 50;
+}
+.sheet {
+  width: 100%;
+  max-width: 520px;
+  background: #101B2E;
+  border: 1px solid var(--line);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  padding: 20px 22px max(24px, env(safe-area-inset-bottom));
+}
+.sheet.tall { height: 78dvh; display: flex; flex-direction: column; }
+.sheet-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  color: var(--text);
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+.x {
+  background: none;
+  border: none;
+  color: var(--meta);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.mini-quote {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--meta);
+  border-left: 2px solid var(--line);
+  padding-left: 12px;
+  margin-bottom: 14px;
+  max-height: 80px;
+  overflow-y: auto;
+}
+#note-input {
+  width: 100%;
+  background: #0C1526;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.7;
+  padding: 12px 14px;
+  resize: none;
+  margin-bottom: 14px;
+}
+#note-input:focus { outline: none; border-color: var(--accent); }
+#note-save { width: 100%; }
+
+.list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 8px; }
+.list-empty { color: var(--dim); font-size: 14px; text-align: center; margin-top: 40px; }
+.thought {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  background: #0C1526;
+}
+.thought .t-quote {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--meta);
+  border-left: 2px solid var(--line);
+  padding-left: 10px;
+  margin-bottom: 10px;
+}
+.thought .t-note {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.thought .t-meta {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--dim);
+  letter-spacing: 0.04em;
+}
