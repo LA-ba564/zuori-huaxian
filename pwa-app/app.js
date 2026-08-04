@@ -36,6 +36,7 @@
   var dateEl = $("date"), quoteEl = $("quote"), sourceEl = $("source");
   var card = $("card"), egg = $("egg"), openLink = $("open-link");
   var noteBtn = $("note-btn"), thoughtsBtn = $("thoughts-btn");
+  var themeBtn = $("theme-btn");
 
   var current = null;
   var lastYearLine = null;   // 去年今天的那条划线
@@ -238,6 +239,34 @@
     if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") nextCard();
   });
 
+  // ---------- 主题切换 ----------
+  var K_THEME = "yl_theme";
+  var metaTheme = document.querySelector('meta[name="theme-color"]');
+  function readTheme() {
+    try { return localStorage.getItem(K_THEME) || ""; } catch (e) { return ""; }
+  }
+  function writeTheme(t) {
+    try { localStorage.setItem(K_THEME, t); } catch (e) {}
+  }
+  var THEME_META = { "": "#0E1626", "ao3": "#111111", "ao3-light": "#ffffff" };
+  function nextThemeName(t) {
+    if (t === "ao3") return "日间";
+    if (t === "ao3-light") return "电台";
+    return "AO3";
+  }
+  function applyTheme(t) {
+    document.body.removeAttribute("data-theme");
+    if (t === "ao3" || t === "ao3-light") document.body.setAttribute("data-theme", t);
+    if (metaTheme) metaTheme.setAttribute("content", THEME_META[t] || THEME_META[""]);
+    themeBtn.textContent = nextThemeName(t);
+  }
+  themeBtn.addEventListener("click", function () {
+    var cur = readTheme();
+    var next = cur === "" ? "ao3" : cur === "ao3" ? "ao3-light" : "";
+    writeTheme(next);
+    applyTheme(next);
+  });
+
   // ---------- 口令（首次设置 / 之后验证） ----------
   var K_PIN = "yl_pin";
   function hashPin(s) {
@@ -263,27 +292,28 @@
     var err = document.createElement("p");
     var btn = document.createElement("button");
     var tip = document.createElement("p");
-    var inputStyle = "width:100%;box-sizing:border-box;background:#0C1526;border:1px solid #2A3245;border-radius:12px;color:#E9C9A0;font-family:inherit;font-size:16px;letter-spacing:.2em;text-align:center;padding:12px 14px;margin-bottom:10px;";
+
+    overlay.className = "gate";
+    box.className = "gate-box";
+    title.className = "gate-title";
+    desc.className = "gate-desc";
+    err.className = "gate-err";
+    tip.className = "gate-tip";
+    input.className = "gate-input";
+    input2.className = "gate-input";
+    btn.className = "gate-btn";
 
     [title, desc, input, input2, err, btn, tip].forEach(function (el) { box.appendChild(el); });
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 
-    overlay.setAttribute("style", "position:fixed;inset:0;background:#0E1626;display:flex;align-items:center;justify-content:center;z-index:100;");
-    box.setAttribute("style", "width:86%;max-width:360px;text-align:center;");
-    title.setAttribute("style", "color:#E9C9A0;font-size:20px;letter-spacing:.15em;margin-bottom:8px;");
     title.textContent = "昨日划线";
-    desc.setAttribute("style", "color:#8A93A8;font-size:13px;margin-bottom:20px;");
     input.setAttribute("type", "password");
     input.setAttribute("placeholder", "输入口令");
-    input.setAttribute("style", inputStyle);
     input2.setAttribute("type", "password");
     input2.setAttribute("placeholder", "再输一遍");
-    input2.setAttribute("style", inputStyle);
-    err.setAttribute("style", "color:#D9A85B;font-size:13px;margin-bottom:10px;min-height:1em;");
+    err.setAttribute("role", "alert");
     btn.setAttribute("type", "button");
-    btn.setAttribute("style", "width:100%;padding:14px 0;border-radius:12px;background:#D9A85B;color:#0E1626;font-family:inherit;font-size:15px;letter-spacing:.1em;border:none;cursor:pointer;font-weight:600;");
-    tip.setAttribute("style", "color:#3A4155;font-size:11px;margin-top:16px;letter-spacing:.05em;");
     tip.textContent = "口令存在本机浏览器 · 清除浏览器缓存会重置";
 
     if (stored) {
@@ -333,5 +363,6 @@
     navigator.serviceWorker.register("sw.js").catch(function () {});
   }
 
+  applyTheme(readTheme());
   setupGate(initApp);
 })();

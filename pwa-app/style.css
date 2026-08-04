@@ -1,4 +1,4 @@
-/* 昨日划线 · 深夜电台风格 */
+/* 昨日划线 · 主题系统 */
 :root {
   --bg: #0E1626;
   --text: #E9C9A0;
@@ -6,6 +6,47 @@
   --accent: #D9A85B;
   --line: #2A3245;
   --dim: rgba(233, 201, 160, 0.35);
+  --panel: #101B2E;        /* 底部弹层背景 */
+  --field: #0C1526;        /* 输入框 / 想法卡片背景 */
+  --btn-text: #0E1626;     /* 主按钮文字 */
+  --egg-bg: rgba(217, 168, 91, 0.06);
+  --bg-top: #162238;       /* 背景渐变顶部 */
+  --shade: rgba(5, 8, 16, 0.72);  /* 弹层遮罩 */
+  --font: "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
+}
+
+/* AO3 深色 · 近黑档案库 + 标志红 */
+body[data-theme="ao3"] {
+  --bg: #111111;
+  --text: #cccccc;
+  --meta: #9a9a9a;
+  --accent: #b30000;
+  --line: #2a2a2a;
+  --dim: rgba(204, 204, 204, 0.35);
+  --panel: #191919;
+  --field: #151515;
+  --btn-text: #f2f2f2;
+  --egg-bg: rgba(179, 0, 0, 0.1);
+  --bg-top: #1a1a1a;
+  --shade: rgba(5, 8, 16, 0.72);
+  --font: Verdana, "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+}
+
+/* AO3 日间 · 白纸黑字 + 标志红链接 */
+body[data-theme="ao3-light"] {
+  --bg: #ffffff;
+  --text: #222222;
+  --meta: #666666;
+  --accent: #b30000;
+  --line: #dddddd;
+  --dim: rgba(34, 34, 34, 0.35);
+  --panel: #f5f5f5;
+  --field: #ffffff;
+  --btn-text: #ffffff;
+  --egg-bg: rgba(179, 0, 0, 0.07);
+  --bg-top: #f2f2f2;
+  --shade: rgba(0, 0, 0, 0.35);
+  --font: Verdana, "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -13,9 +54,9 @@
 html, body { height: 100%; }
 
 body {
-  background: radial-gradient(120% 100% at 50% 0%, #162238 0%, var(--bg) 55%);
+  background: radial-gradient(120% 100% at 50% 0%, var(--bg-top) 0%, var(--bg) 55%);
   color: var(--text);
-  font-family: "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
+  font-family: var(--font);
   overflow: hidden;
   -webkit-user-select: none;
   user-select: none;
@@ -48,6 +89,8 @@ body {
   cursor: pointer;
 }
 .linklike:active { color: var(--accent); }
+.top-right { display: flex; align-items: center; }
+.top-right .linklike { padding-left: 14px; }
 #thoughts-count {
   display: inline-block;
   min-width: 1.2em;
@@ -74,7 +117,7 @@ body {
   border: 1px solid var(--line);
   border-radius: 999px;
   cursor: pointer;
-  background: rgba(217, 168, 91, 0.06);
+  background: var(--egg-bg);
 }
 
 .card {
@@ -130,7 +173,7 @@ body {
 }
 .btn.primary {
   background: var(--accent);
-  color: #0E1626;
+  color: var(--btn-text);
   border: none;
   font-weight: 600;
 }
@@ -145,7 +188,7 @@ body {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(5, 8, 16, 0.72);
+  background: var(--shade);
   backdrop-filter: blur(6px);
   display: none;
   align-items: flex-end;
@@ -156,7 +199,7 @@ body {
 .sheet {
   width: 100%;
   max-width: 520px;
-  background: #101B2E;
+  background: var(--panel);
   border: 1px solid var(--line);
   border-bottom: none;
   border-radius: 20px 20px 0 0;
@@ -192,7 +235,7 @@ body {
 }
 #note-input {
   width: 100%;
-  background: #0C1526;
+  background: var(--field);
   border: 1px solid var(--line);
   border-radius: 12px;
   color: var(--text);
@@ -212,7 +255,7 @@ body {
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 14px;
-  background: #0C1526;
+  background: var(--field);
 }
 .thought .t-quote {
   font-size: 13px;
@@ -235,3 +278,48 @@ body {
   color: var(--dim);
   letter-spacing: 0.04em;
 }
+
+/* 口令页（动态创建，样式跟随主题） */
+.gate {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.gate-box { width: 86%; max-width: 360px; text-align: center; }
+.gate-title { color: var(--text); font-size: 20px; letter-spacing: 0.15em; margin-bottom: 8px; }
+.gate-desc { color: var(--meta); font-size: 13px; margin-bottom: 20px; }
+.gate-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 16px;
+  letter-spacing: 0.2em;
+  text-align: center;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.gate-input:focus { outline: none; border-color: var(--accent); }
+.gate-err { color: var(--accent); font-size: 13px; margin-bottom: 10px; min-height: 1em; }
+.gate-btn {
+  width: 100%;
+  padding: 14px 0;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--btn-text);
+  font-family: inherit;
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+.gate-btn:active { opacity: 0.85; }
+.gate-tip { color: var(--dim); font-size: 11px; margin-top: 16px; letter-spacing: 0.05em; }
