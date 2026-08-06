@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <link rel="apple-touch-icon" href="icon.svg">
-<title>昨日划线</title>
+<title>纸间</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -26,10 +26,22 @@
     <div id="egg" class="egg" hidden>
       <span>✨ 去年的今天，你划下了这句</span>
     </div>
-    <figure class="card" id="card">
-      <blockquote id="quote"></blockquote>
-      <figcaption id="source"></figcaption>
-    </figure>
+    <div id="card-wrap" class="card-wrap">
+      <figure class="card" id="card">
+        <div class="face front">
+          <div class="face-inner">
+            <blockquote class="quote"></blockquote>
+            <figcaption class="source"></figcaption>
+          </div>
+        </div>
+        <div class="face back">
+          <div class="face-inner">
+            <blockquote class="quote"></blockquote>
+            <figcaption class="source"></figcaption>
+          </div>
+        </div>
+      </figure>
+    </div>
     <p class="hint">点一下换一句 · 长按标记不重要</p>
   </main>
 
@@ -38,6 +50,8 @@
     <button id="note-btn" class="btn ghost" type="button">写想法</button>
   </footer>
 </div>
+
+<div id="measure" class="measure" aria-hidden="true"></div>
 
 <div id="note-overlay" class="overlay" hidden>
   <div class="sheet">

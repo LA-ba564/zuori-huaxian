@@ -1,7 +1,7 @@
 {
-  "name": "昨日划线",
-  "short_name": "昨日划线",
-  "description": "每天一条你划过的句子，和去年的今天。",
+  "name": "纸间",
+  "short_name": "纸间",
+  "description": "每天一句你划过的句子，像翻一页纸。",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

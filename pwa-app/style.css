@@ -1,4 +1,6 @@
-/* 昨日划线 · 主题系统 */
+@import url("https://fontsapi.zeoseven.com/256/main/result.css");
+
+/* 纸间 · 主题系统 */
 :root {
   --bg: #0E1626;
   --text: #E9C9A0;
@@ -49,6 +51,25 @@ body[data-theme="ao3-light"] {
   --font: Verdana, "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
 }
 
+/* 报纸 · 暖白旧纸 + 纸纹褶皱 + 报纸红（日间，与电台正好一明一暗） */
+body[data-theme="paper"] {
+  --bg: #F9F0E0;
+  --bg-top: #FBF5E8;
+  --text: #3b3220;
+  --meta: #8a7b56;
+  --accent: #a5342e;
+  --line: #cfc19a;
+  --dim: rgba(59, 50, 32, 0.38);
+  --panel: #f5ecd6;
+  --field: #f2e7cc;
+  --btn-text: #fbf6e7;
+  --egg-bg: rgba(165, 52, 46, 0.08);
+  --shade: rgba(74, 60, 30, 0.45);
+  --font: "Huiwen-mincho", "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
+  --paper-grain: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="200" height="200" opacity="0.045" filter="url(%23g)"/></svg>');
+  --paper-fold: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.025 0.02" numOctaves="3" seed="9" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 0 0 0 0.45 0 0 0 0 0.40 0 0 0 0 0.33 0 0 0 0.14 0"/></filter><rect width="320" height="320" filter="url(%23f)"/></svg>');
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body { height: 100%; }
@@ -61,6 +82,25 @@ body {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+}
+
+/* 报纸 · 纸上颗粒 + 褶皱暗影 + 报头分隔线 */
+body[data-theme="paper"] {
+  background-image:
+    var(--paper-grain),
+    var(--paper-fold),
+    radial-gradient(120% 100% at 50% 0%, var(--bg-top) 0%, var(--bg) 60%);
+  background-size: 200px 200px, 320px 320px, auto;
+}
+body[data-theme="paper"] .top {
+  border-bottom: 2px solid var(--line);
+  padding-bottom: 10px;
+  color: var(--text);
+}
+body[data-theme="paper"] #date {
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  color: var(--text);
 }
 
 #app {
@@ -122,17 +162,48 @@ body {
   background: var(--egg-bg);
 }
 
-.card {
+/* 翻页卡片：中部限高，短句居中、长句卡内滚动 */
+.card-wrap {
   width: 100%;
   max-width: 520px;
-  cursor: pointer;
-  margin: auto 0;   /* 垂直居中；句子超长时回到顶部、可滚动 */
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  margin: auto 0;   /* 垂直居中；万一超高时回到顶部、可滚动 */
+  -webkit-perspective: 1400px;
+  perspective: 1400px;
 }
-.card.leaving { opacity: 0; transform: translateY(10px); }
-.card.ignored { opacity: 0.25; transform: scale(0.97); }
+.card {
+  position: relative;
+  width: 100%;
+  min-height: 72px;
+  max-height: 58dvh;
+  cursor: pointer;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0.1, 0.2, 1), opacity 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.card.flipped { transform: rotateY(180deg); }
+.card.ignored { opacity: 0.3; }
 
-#quote {
+.face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 8px 6px 26px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.face.back { transform: rotateY(180deg); }
+.face-inner { width: 100%; margin: auto 0; }
+
+.quote {
   font-size: 21px;
   line-height: 1.9;
   font-weight: normal;
@@ -140,15 +211,41 @@ body {
   text-align: left;
   word-break: break-word;
 }
-#source {
+.source {
   margin-top: 22px;
   font-size: 15px;
   color: var(--meta);
   text-align: left;
   line-height: 1.7;
 }
-#source .book { color: var(--accent); }
-#source .author { color: var(--meta); }
+.source .book { color: var(--accent); }
+.source .author { color: var(--meta); }
+
+/* 报纸主题的纸页卡片 */
+body[data-theme="paper"] .face {
+  background-color: #FDF8EE;
+  background-image: var(--paper-grain), var(--paper-fold);
+  background-size: 200px 200px, 320px 320px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 3px 14px rgba(90, 70, 30, 0.16), 0 1px 3px rgba(90, 70, 30, 0.08);
+  padding-top: 28px;
+}
+/* 报纸主题按钮也用明朝体、不加粗 */
+body[data-theme="paper"] .btn {
+  font-family: "Huiwen-mincho", "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
+  font-weight: normal;
+}
+body[data-theme="paper"] .face::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  right: 14px;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, var(--accent) 0 9px, transparent 9px 15px, var(--accent) 15px 21px, transparent 21px 27px);
+  opacity: 0.8;
+}
 
 .hint {
   margin-top: 26px;
@@ -280,6 +377,17 @@ body {
   font-size: 12px;
   color: var(--dim);
   letter-spacing: 0.04em;
+}
+
+/* 测高元素（不可见，用于翻页前计算卡片高度） */
+.measure {
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* 口令页（动态创建，样式跟随主题） */

@@ -1,4 +1,4 @@
-/* 昨日划线 · 每日一句 */
+/* 纸间 · 每日一句 */
 (function () {
   "use strict";
 
@@ -33,21 +33,27 @@
 
   // ---------- DOM ----------
   var $ = function (id) { return document.getElementById(id); };
-  var dateEl = $("date"), quoteEl = $("quote"), sourceEl = $("source");
-  var card = $("card"), egg = $("egg"), openLink = $("open-link");
+  var dateEl = $("date"), openLink = $("open-link");
+  var card = $("card"), egg = $("egg");
+  var frontFace = card.querySelector(".face.front");
+  var backFace = card.querySelector(".face.back");
+  var frontInner = frontFace.querySelector(".face-inner");
+  var backInner = backFace.querySelector(".face-inner");
   var noteBtn = $("note-btn"), thoughtsBtn = $("thoughts-btn");
   var themeBtn = $("theme-btn");
 
   var current = null;
   var lastYearLine = null;   // 去年今天的那条划线
   var longPress = false;
+  var flipping = false;      // 翻页进行中，防止连点
+  var flipTimer = null;
 
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
   function fmtDate(ts) {
     if (!ts) return "";
     var d = new Date(ts * 1000);
     return d.getFullYear() + "." + pad(d.getMonth() + 1) + "." + pad(d.getDate());
   }
-  function pad(n) { return (n < 10 ? "0" : "") + n; }
   function md(ts) {
     var d = new Date(ts * 1000);
     return pad(d.getMonth() + 1) + "-" + pad(d.getDate());
@@ -56,6 +62,30 @@
     var d = document.createElement("div");
     d.textContent = s;
     return d.innerHTML;
+  }
+
+  // ---------- 卡片内容 ----------
+  function faceHTML(h) {
+    var author = h.author ? " · " + h.author : "";
+    return '<blockquote class="quote">' + esc(h.text) + "</blockquote>" +
+      '<figcaption class="source"><span class="book">《' + esc(h.book) + "》</span>" +
+      '<span class="author">' + esc(author) + "</span></figcaption>";
+  }
+  function maxCardHeight() {
+    return Math.min(520, Math.round(window.innerHeight * 0.58));
+  }
+  function measureHeight(html) {
+    var m = $("measure");
+    var cs = window.getComputedStyle(frontFace);
+    m.style.width = frontFace.getBoundingClientRect().width + "px";
+    m.style.padding = cs.padding;   // 跟随主题的卡片内边距
+    m.innerHTML = '<div class="face-inner">' + html + "</div>";
+    var h = m.scrollHeight;
+    m.innerHTML = "";
+    return h;
+  }
+  function applyHeight(html) {
+    card.style.height = Math.min(measureHeight(html), maxCardHeight()) + "px";
   }
 
   // ---------- 随机取一条 ----------
@@ -72,14 +102,7 @@
   }
 
   // ---------- 渲染 ----------
-  function render(h) {
-    if (!h) return;
-    current = h;
-    quoteEl.innerHTML = esc(h.text);
-    var author = h.author ? " · " + h.author : "";
-    sourceEl.innerHTML = '<span class="book">《' + esc(h.book) + '》</span>' +
-      '<span class="author">' + esc(author) + "</span>";
-
+  function renderMeta(h) {
     if (h.isLastYear) {
       dateEl.textContent = "去年的今天 · " + md(h.ts);
       egg.hidden = true;
@@ -88,7 +111,6 @@
       dateEl.textContent = now.getFullYear() + "." + pad(now.getMonth() + 1) + "." + pad(now.getDate());
       egg.hidden = !lastYearLine;
     }
-
     if (h.link) {
       openLink.href = h.link;
       openLink.style.display = "block";
@@ -96,15 +118,45 @@
       openLink.style.display = "none";
     }
   }
+  function render(h) {
+    if (!h || flipping) return;
+    current = h;
+    frontInner.innerHTML = faceHTML(h);
+    frontFace.scrollTop = 0;
+    applyHeight(faceHTML(h));
+    renderMeta(h);
+  }
 
+  // 翻页：先定好卡片高度，把下一条写进背面，翻转 180°
+  function flipTo(h) {
+    if (!h || flipping) return;
+    current = h;
+    var html = faceHTML(h);
+    var newH = measureHeight(html);
+    var cap = maxCardHeight();
+    var oldH = card.offsetHeight || 0;
+    card.style.height = Math.min(Math.max(oldH, newH), cap) + "px";
+    backInner.innerHTML = html;
+    backFace.scrollTop = 0;
+    frontFace.scrollTop = 0;
+    card.classList.add("flipped");
+    renderMeta(h);
+    flipping = true;
+    clearTimeout(flipTimer);
+    flipTimer = setTimeout(function () {
+      // 翻转完成后：背面内容搬回正面、卡片瞬时复位、高度归到新内容
+      frontInner.innerHTML = backInner.innerHTML;
+      frontFace.scrollTop = 0;
+      card.style.transition = "none";
+      card.style.height = Math.min(newH, cap) + "px";
+      card.classList.remove("flipped");
+      void card.offsetHeight;
+      card.style.transition = "";
+      flipping = false;
+    }, 600);
+  }
   function nextCard() {
-    var h = pick();
-    if (!h) return;
-    card.classList.add("leaving");
-    setTimeout(function () {
-      card.classList.remove("leaving");
-      render(h);
-    }, 240);
+    flipTo(pick());
   }
 
   // ---------- 彩蛋：去年的今天 ----------
@@ -181,7 +233,7 @@
     $("thoughts-count").textContent = n ? " (" + n + ")" : "";
   }
 
-  // ---------- 事件：点屏换卡 / 长按忽略 ----------
+  // ---------- 事件：点屏翻页 / 长按忽略 ----------
   var pressTimer = null;
   function startPress(e) {
     if (e.target.closest("a, button")) return;
@@ -248,23 +300,28 @@
   function writeTheme(t) {
     try { localStorage.setItem(K_THEME, t); } catch (e) {}
   }
-  var THEME_META = { "": "#0E1626", "ao3": "#111111", "ao3-light": "#ffffff" };
+  var THEME_META = { "": "#0E1626", "ao3": "#111111", "ao3-light": "#ffffff", "paper": "#ece3c9" };
   function nextThemeName(t) {
     if (t === "ao3") return "日间";
-    if (t === "ao3-light") return "电台";
+    if (t === "ao3-light") return "报纸";
+    if (t === "paper") return "电台";
     return "AO3";
   }
   function applyTheme(t) {
     document.body.removeAttribute("data-theme");
-    if (t === "ao3" || t === "ao3-light") document.body.setAttribute("data-theme", t);
+    if (t) document.body.setAttribute("data-theme", t);
     if (metaTheme) metaTheme.setAttribute("content", THEME_META[t] || THEME_META[""]);
     themeBtn.textContent = nextThemeName(t);
   }
   themeBtn.addEventListener("click", function () {
     var cur = readTheme();
-    var next = cur === "" ? "ao3" : cur === "ao3" ? "ao3-light" : "";
+    var next = cur === "" ? "ao3" : cur === "ao3" ? "ao3-light" : cur === "ao3-light" ? "paper" : "";
     writeTheme(next);
     applyTheme(next);
+  });
+
+  window.addEventListener("resize", function () {
+    if (current && !flipping) applyHeight(faceHTML(current));
   });
 
   // ---------- 口令（首次设置 / 之后验证） ----------
@@ -307,7 +364,7 @@
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 
-    title.textContent = "昨日划线";
+    title.textContent = "纸间";
     input.setAttribute("type", "password");
     input.setAttribute("placeholder", "输入口令");
     input2.setAttribute("type", "password");
