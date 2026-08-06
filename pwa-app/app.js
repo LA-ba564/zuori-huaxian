@@ -35,18 +35,15 @@
   var $ = function (id) { return document.getElementById(id); };
   var dateEl = $("date"), openLink = $("open-link");
   var card = $("card"), egg = $("egg");
-  var frontFace = card.querySelector(".face.front");
-  var backFace = card.querySelector(".face.back");
-  var frontInner = frontFace.querySelector(".face-inner");
-  var backInner = backFace.querySelector(".face-inner");
+  var face = card.querySelector(".face");
+  var faceInner = face.querySelector(".face-inner");
   var noteBtn = $("note-btn"), thoughtsBtn = $("thoughts-btn");
   var themeBtn = $("theme-btn");
 
   var current = null;
   var lastYearLine = null;   // 去年今天的那条划线
   var longPress = false;
-  var flipping = false;      // 翻页进行中，防止连点
-  var flipTimer = null;
+  var swapTimer = null;      // 换句淡入淡出的计时器
 
   function pad(n) { return (n < 10 ? "0" : "") + n; }
   function fmtDate(ts) {
@@ -76,8 +73,8 @@
   }
   function measureHeight(html) {
     var m = $("measure");
-    var cs = window.getComputedStyle(frontFace);
-    m.style.width = frontFace.getBoundingClientRect().width + "px";
+    var cs = window.getComputedStyle(face);
+    m.style.width = face.getBoundingClientRect().width + "px";
     m.style.padding = cs.padding;   // 跟随主题的卡片内边距
     m.innerHTML = '<div class="face-inner">' + html + "</div>";
     var h = m.scrollHeight;
@@ -119,44 +116,20 @@
     }
   }
   function render(h) {
-    if (!h || flipping) return;
+    if (!h) return;
     current = h;
-    frontInner.innerHTML = faceHTML(h);
-    frontFace.scrollTop = 0;
-    applyHeight(faceHTML(h));
-    renderMeta(h);
-  }
-
-  // 翻页：先定好卡片高度，把下一条写进背面，翻转 180°
-  function flipTo(h) {
-    if (!h || flipping) return;
-    current = h;
-    var html = faceHTML(h);
-    var newH = measureHeight(html);
-    var cap = maxCardHeight();
-    var oldH = card.offsetHeight || 0;
-    card.style.height = Math.min(Math.max(oldH, newH), cap) + "px";
-    backInner.innerHTML = html;
-    backFace.scrollTop = 0;
-    frontFace.scrollTop = 0;
-    card.classList.add("flipped");
-    renderMeta(h);
-    flipping = true;
-    clearTimeout(flipTimer);
-    flipTimer = setTimeout(function () {
-      // 翻转完成后：背面内容搬回正面、卡片瞬时复位、高度归到新内容
-      frontInner.innerHTML = backInner.innerHTML;
-      frontFace.scrollTop = 0;
-      card.style.transition = "none";
-      card.style.height = Math.min(newH, cap) + "px";
-      card.classList.remove("flipped");
-      void card.offsetHeight;
-      card.style.transition = "";
-      flipping = false;
-    }, 600);
+    face.style.opacity = "0";            // 先淡出
+    clearTimeout(swapTimer);
+    swapTimer = setTimeout(function () {
+      faceInner.innerHTML = faceHTML(h);
+      face.scrollTop = 0;
+      applyHeight(faceHTML(h));
+      renderMeta(h);
+      face.style.opacity = "";           // 再淡入
+    }, 180);
   }
   function nextCard() {
-    flipTo(pick());
+    render(pick());
   }
 
   // ---------- 彩蛋：去年的今天 ----------
@@ -233,31 +206,41 @@
     $("thoughts-count").textContent = n ? " (" + n + ")" : "";
   }
 
-  // ---------- 事件：点屏翻页 / 长按忽略 ----------
+  // ---------- 事件：点按换句 / 滑动滚动（不换句）/ 长按忽略 ----------
   var pressTimer = null;
+  var tapX = 0, tapY = 0, moved = false;
   function startPress(e) {
     if (e.target.closest("a, button")) return;
     longPress = false;
+    moved = false;
+    tapX = e.touches ? e.touches[0].clientX : e.clientX;
+    tapY = e.touches ? e.touches[0].clientY : e.clientY;
     pressTimer = setTimeout(function () {
       longPress = true;
       ignoreCurrent();
       navigator.vibrate && navigator.vibrate(30);
     }, 500);
   }
-  function cancelPress() {
-    clearTimeout(pressTimer);
+  function movePress(e) {
+    var x = e.touches ? e.touches[0].clientX : e.clientX;
+    var y = e.touches ? e.touches[0].clientY : e.clientY;
+    // 位移超过阈值 → 是滑动/滚动，不是点按，也不是长按
+    if (Math.abs(x - tapX) > 8 || Math.abs(y - tapY) > 8) moved = true;
+    if (moved) clearTimeout(pressTimer);
   }
   function endPress(e) {
     clearTimeout(pressTimer);
     if (longPress) return;
     if (e.target.closest("a, button")) return;
+    if (moved) return;   // 滑动过 → 只滚动内容，不换句
     nextCard();
   }
 
   card.addEventListener("touchstart", startPress, { passive: true });
-  card.addEventListener("touchmove", cancelPress, { passive: true });
+  card.addEventListener("touchmove", movePress, { passive: true });
   card.addEventListener("touchend", endPress);
   card.addEventListener("mousedown", startPress);
+  card.addEventListener("mousemove", movePress);
   card.addEventListener("mouseup", endPress);
   card.addEventListener("contextmenu", function (e) { e.preventDefault(); });
 
@@ -321,7 +304,7 @@
   });
 
   window.addEventListener("resize", function () {
-    if (current && !flipping) applyHeight(faceHTML(current));
+    if (current) applyHeight(faceHTML(current));
   });
 
   // ---------- 口令（首次设置 / 之后验证） ----------

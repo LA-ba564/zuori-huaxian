@@ -14,7 +14,7 @@
   --egg-bg: rgba(217, 168, 91, 0.06);
   --bg-top: #162238;       /* 背景渐变顶部 */
   --shade: rgba(5, 8, 16, 0.72);  /* 弹层遮罩 */
-  --font: "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
+  --font: "Huiwen-mincho", "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
 }
 
 /* AO3 深色 · 近黑档案库 + 标志红 */
@@ -31,7 +31,7 @@ body[data-theme="ao3"] {
   --egg-bg: rgba(179, 0, 0, 0.1);
   --bg-top: #1a1a1a;
   --shade: rgba(5, 8, 16, 0.72);
-  --font: Verdana, "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+  --font: "Huiwen-mincho", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
 }
 
 /* AO3 日间 · 白纸黑字 + 标志红链接 */
@@ -48,7 +48,7 @@ body[data-theme="ao3-light"] {
   --egg-bg: rgba(179, 0, 0, 0.07);
   --bg-top: #f2f2f2;
   --shade: rgba(0, 0, 0, 0.35);
-  --font: Verdana, "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+  --font: "Huiwen-mincho", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
 }
 
 /* 报纸 · 暖白旧纸 + 纸纹褶皱 + 报纸红（日间，与电台正好一明一暗） */
@@ -162,13 +162,11 @@ body[data-theme="paper"] #date {
   background: var(--egg-bg);
 }
 
-/* 翻页卡片：中部限高，短句居中、长句卡内滚动 */
+/* 卡片：中部限高，短句居中、长句卡内滚动；点按换句（滑动只滚动，不换句） */
 .card-wrap {
   width: 100%;
   max-width: 520px;
   margin: auto 0;   /* 垂直居中；万一超高时回到顶部、可滚动 */
-  -webkit-perspective: 1400px;
-  perspective: 1400px;
 }
 .card {
   position: relative;
@@ -176,20 +174,13 @@ body[data-theme="paper"] #date {
   min-height: 72px;
   max-height: 58dvh;
   cursor: pointer;
-  -webkit-transform-style: preserve-3d;
-  transform-style: preserve-3d;
-  transition: transform 0.55s cubic-bezier(0.4, 0.1, 0.2, 1), opacity 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
-.card.flipped { transform: rotateY(180deg); }
 .card.ignored { opacity: 0.3; }
 
 .face {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
-  height: 100%;
   box-sizing: border-box;
   padding: 8px 6px 26px;
   display: flex;
@@ -197,10 +188,8 @@ body[data-theme="paper"] #date {
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  transition: opacity 0.15s ease;   /* 换句时轻淡入淡出 */
 }
-.face.back { transform: rotateY(180deg); }
 .face-inner { width: 100%; margin: auto 0; }
 
 .quote {
@@ -231,11 +220,6 @@ body[data-theme="paper"] .face {
   box-shadow: 0 3px 14px rgba(90, 70, 30, 0.16), 0 1px 3px rgba(90, 70, 30, 0.08);
   padding-top: 28px;
 }
-/* 报纸主题按钮也用明朝体、不加粗 */
-body[data-theme="paper"] .btn {
-  font-family: "Huiwen-mincho", "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
-  font-weight: normal;
-}
 body[data-theme="paper"] .face::before {
   content: "";
   position: absolute;
@@ -262,20 +246,20 @@ body[data-theme="paper"] .face::before {
 .btn {
   flex: 1;
   padding: 14px 0;
-  font-family: "Songti SC", "Noto Serif SC", "STSong", "SimSun", serif;
+  font-family: var(--font);
   font-size: 15px;
   letter-spacing: 0.1em;
   border-radius: 12px;
   text-align: center;
   text-decoration: none;
   cursor: pointer;
+  font-weight: normal;
   -webkit-tap-highlight-color: transparent;
 }
 .btn.primary {
   background: var(--accent);
   color: var(--btn-text);
   border: none;
-  font-weight: 600;
 }
 .btn.ghost {
   background: transparent;
@@ -379,7 +363,7 @@ body[data-theme="paper"] .face::before {
   letter-spacing: 0.04em;
 }
 
-/* 测高元素（不可见，用于翻页前计算卡片高度） */
+/* 测高元素（不可见，用于计算卡片高度） */
 .measure {
   position: fixed;
   top: 0;
@@ -430,7 +414,7 @@ body[data-theme="paper"] .face::before {
   letter-spacing: 0.1em;
   border: none;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: normal;
 }
 .gate-btn:active { opacity: 0.85; }
 .gate-tip { color: var(--dim); font-size: 11px; margin-top: 16px; letter-spacing: 0.05em; }
