@@ -189,6 +189,7 @@ body[data-theme="paper"] #date {
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;   /* 显式允许纵向滑动，避免内嵌浏览器/部分 Safari 不接管滚动 */
   transition: opacity 0.15s ease;   /* 换句时轻淡入淡出 */
 }
 .face-inner { width: 100%; margin: auto 0; }

@@ -239,6 +239,8 @@
   card.addEventListener("touchstart", startPress, { passive: true });
   card.addEventListener("touchmove", movePress, { passive: true });
   card.addEventListener("touchend", endPress);
+  // 浏览器接管滚动时会发 touchcancel（如 touch-action:pan-y 起效后）——一律按"已滑动"处理，绝不误触换句
+  card.addEventListener("touchcancel", function () { moved = true; clearTimeout(pressTimer); });
   card.addEventListener("mousedown", startPress);
   card.addEventListener("mousemove", movePress);
   card.addEventListener("mouseup", endPress);
