@@ -181,6 +181,7 @@ body[data-theme="paper"] #date {
 .face {
   position: relative;
   width: 100%;
+  height: 100%;       /* 严格填满卡片，长句在内部滚动，不向外溢出 */
   box-sizing: border-box;
   padding: 8px 6px 26px;
   display: flex;

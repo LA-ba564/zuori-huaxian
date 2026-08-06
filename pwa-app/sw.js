@@ -1,5 +1,5 @@
 /* 纸间 · Service Worker：静态资源离线缓存 */
-var CACHE = "zuori-huaxian-v7";
+var CACHE = "zuori-huaxian-v8";
 var ASSETS = ["./", "./index.html", "./style.css", "./app.js", "./data.js", "./icon.svg", "./manifest.webmanifest"];
 
 self.addEventListener("install", function (e) {
